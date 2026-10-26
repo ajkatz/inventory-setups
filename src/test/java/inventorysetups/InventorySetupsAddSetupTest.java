@@ -314,4 +314,21 @@ public class InventorySetupsAddSetupTest
 		}
 		assertTrue(inventorySetupsPlugin.getInventorySetups().isEmpty());
 	}
+
+	@Test
+	public void testAddSetupAcceptsEmptyContentsForAContainerTheSetupLacks()
+	{
+		// A sender may always send the keys, empty when its set has no pouch or quiver (Loadout Lab does).
+		final String name = inventorySetupsPlugin.addInventorySetup(minimal("Vorkath")
+			.runePouchIds(new ArrayList<>())
+			.runePouchQuantities(new ArrayList<>())
+			.boltPouchIds(Arrays.asList(-1, -1))
+			.quiverItemId(-1)
+			.build());
+
+		final InventorySetup setup = saved(name);
+		assertNull(setup.getRune_pouch());
+		assertNull(setup.getBoltPouch());
+		assertNull(setup.getQuiver());
+	}
 }

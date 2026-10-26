@@ -1282,29 +1282,37 @@ public class InventorySetupsPlugin extends Plugin
 			}
 		}
 
-		// Contents are only accepted for a special container the setup holds.
+		// Contents are only accepted for a special container the setup holds. A list that is empty or only -1
+		// gives no contents, so it is accepted either way, like a key left out.
 		final List<InventorySetupsItem> inv = itemsFromIds(request.getInventoryIds(), null, NUM_INVENTORY_ITEMS,
 			InventorySetupsSlotID.INVENTORY, false);
 		final List<InventorySetupsItem> eqp = itemsFromIds(request.getEquipmentIds(), null, NUM_EQUIPMENT_ITEMS,
 			InventorySetupsSlotID.EQUIPMENT, false);
 		final InventorySetupsRunePouchType pouchType = ammoHandler.getRunePouchTypeFromContainer(inv);
-		if (request.getRunePouchIds() != null && pouchType == InventorySetupsRunePouchType.NONE)
+		if (holdsItems(request.getRunePouchIds()) && pouchType == InventorySetupsRunePouchType.NONE)
 		{
 			throw new IllegalArgumentException("'" + API_DATA_RUNE_POUCH_ITEM_IDS + "' given, but the inventory holds no rune pouch");
 		}
-		if (request.getRunePouchIds() != null && request.getRunePouchIds().size() > pouchType.getSize())
+		if (pouchType != InventorySetupsRunePouchType.NONE && request.getRunePouchIds() != null
+			&& request.getRunePouchIds().size() > pouchType.getSize())
 		{
 			throw new IllegalArgumentException("'" + API_DATA_RUNE_POUCH_ITEM_IDS + "' holds more than the pouch's "
 				+ pouchType.getSize() + " slots");
 		}
-		if (request.getBoltPouchIds() != null && !ammoHandler.containerContainsBoltPouch(inv))
+		if (holdsItems(request.getBoltPouchIds()) && !ammoHandler.containerContainsBoltPouch(inv))
 		{
 			throw new IllegalArgumentException("'" + API_DATA_BOLT_POUCH_ITEM_IDS + "' given, but the inventory holds no bolt pouch");
 		}
-		if (quiverItem != null && !ammoHandler.setupContainsQuiver(inv, eqp))
+		if (quiverItem != null && quiverItem >= 0 && !ammoHandler.setupContainsQuiver(inv, eqp))
 		{
 			throw new IllegalArgumentException("'" + API_DATA_QUIVER_ITEM_ID + "' given, but the setup holds no Dizana's quiver");
 		}
+	}
+
+	// Whether a list of item ids holds any item (not just empty slots).
+	private static boolean holdsItems(final List<Integer> ids)
+	{
+		return ids != null && ids.stream().anyMatch(id -> id != null && id >= 0);
 	}
 
 	// Item ids: each at least -1 (an empty slot), at most maxSize of them.

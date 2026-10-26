@@ -77,6 +77,7 @@ public class InventorySetupsPluginMessageHandler
 	//   "highlightColor", "displayColor" = Integer RGB; "iconId" = Integer, an item id
 	//   "section" = String, the section to put the setup in (created when absent)
 	//   "notes", "attackOption" = String
+	// Contents for a pouch or quiver the setup lacks are refused, but an empty list (or only -1) is accepted.
 	// Quantities must be at least 1, and every id must be a real item. A request that breaks a rule saves
 	// nothing. An existing setup is never replaced: the name gets " (2)", " (3)"... when taken.
 	// The setup is created on the client thread, and an add-setup-result is always broadcast. Posted from the
